@@ -2,11 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\API\ResponseJson;
 use App\Models\Post;
+use App\Services\PostService;
+use Exception;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+    private $service;
+    
+    public function __construct(PostService $postService)
+    {
+        $this->service = $postService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +24,12 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $post = $this->service->getAllPost();
+            return ResponseJson::success($post, 'Data POST berhasil di ambil');
+        }catch(Exception $e){
+            return ResponseJson::error($e->getMessage());
+        }
     }
 
     /**
