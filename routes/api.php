@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController as Post;
+use App\Http\Controllers\AuthController as Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,8 +16,10 @@ use App\Http\Controllers\PostController as Post;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('register', [Auth::class, 'register']);
+Route::post('login', [Auth::class, 'login'])->name('login');
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::resource('post', Post::class);
 });
 
-Route::resource('post', Post::class);

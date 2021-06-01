@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Helpers\HashId;
 use App\Http\Controllers\API\ResponseJson;
-use App\Http\Resources\PostResource;
-use App\Models\Post;
 use App\Services\PostService;
 use Exception;
 use Illuminate\Http\Request;
