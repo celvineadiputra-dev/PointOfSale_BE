@@ -19,7 +19,10 @@ class PostResource extends JsonResource
             'id' => HashId::hashid_decode($this->id),
             'title' => $this->title,
             'content' => $this->content,
-            'slug' => $this->slug
+            'slug' => $this->slug,
+            'created_at' => $this->created_at->format('d/m/Y'),
+            'updated' => $this->updated_at->diffForHumans(),
+            'created' => $this->created_at->diffForHumans()
         ];
     }
 }

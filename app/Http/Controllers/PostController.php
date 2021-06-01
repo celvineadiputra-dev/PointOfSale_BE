@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\HashId;
 use App\Http\Controllers\API\ResponseJson;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use App\Services\PostService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
     private $service;
-    
+
     public function __construct(PostService $postService)
     {
         $this->service = $postService;
@@ -24,22 +27,12 @@ class PostController extends Controller
      */
     public function index()
     {
-        try{
+        try {
             $post = $this->service->getAllPost();
             return ResponseJson::success($post, 'Data POST berhasil di ambil');
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return ResponseJson::error($e->getMessage());
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -50,7 +43,19 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|unique:posts|max:255',
+            'content' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return ResponseJson::error($validator->errors());
+        }
+        try {
+            $post = $this->service->storePost($request);
+            return ResponseJson::success($post, 'Data berhasil di tambahkan');
+        } catch (Exception $e) {
+            return ResponseJson::error($e->getMessage());
+        }
     }
 
     /**
@@ -59,20 +64,14 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function show(Post $post)
+    public function show($post)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Post $post)
-    {
-        //
+        try {
+            $post = $this->service->getPost($post);
+            return ResponseJson::success($post, 'Data berhasil di dapatkan');
+        } catch (Exception $e) {
+            return ResponseJson::error($e->getMessage());
+        }
     }
 
     /**
@@ -82,9 +81,21 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request, $post)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|unique:posts,title,' . HashId::hashid_encode($post) . '|max:255',
+            'content' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return ResponseJson::error($validator->errors());
+        }
+        try {
+            $post = $this->service->updatePost($request, $post);
+            return ResponseJson::success($post, 'Data berhasil di update');
+        } catch (Exception $e) {
+            return ResponseJson::error($e->getMessage());
+        }
     }
 
     /**
@@ -93,8 +104,13 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post)
+    public function destroy($post)
     {
-        //
+        try{
+            $post = $this->service->destoryPost($post);
+            return ResponseJson::success($post, 'Data berhasil di hapus');
+        }catch(Exception $e){
+            return ResponseJson::error($e->getMessage());
+        }
     }
 }
